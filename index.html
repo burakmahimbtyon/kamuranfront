@@ -163,7 +163,11 @@ body{background:var(--bg);color:var(--text-1);height:100vh;overflow:hidden;trans
 .nav-badge{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--surface2);color:var(--text-3);padding:1px 5px;border-radius:10px;flex-shrink:0;transition:max-width var(--t),opacity var(--t);max-width:36px;}
 .sidebar.compact .nav-badge{display:none;}
 .nav-divider{height:1px;background:var(--border);margin:6px 0;}
-.sidebar.compact [data-tip]:hover::after{content:attr(data-tip);position:absolute;left:calc(100%+10px);top:50%;transform:translateY(-50%);background:var(--accent-bg);color:var(--accent-fg);font-size:12px;padding:4px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:300;}
+#navFlyout{position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);min-width:170px;overflow:hidden;display:none;}
+#navFlyoutTitle{padding:8px 14px 7px;font-size:12.5px;font-weight:600;color:var(--text-1);border-bottom:1px solid var(--border);}
+#navFlyoutBody{padding:4px 0;}
+.nav-flyout-item{display:block;width:100%;text-align:left;padding:5px 14px;font-size:12.5px;color:var(--text-2);background:none;border:none;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.nav-flyout-item:hover{background:var(--surface2);color:var(--text-1);}
 
 /* Env log */
 .env-log{margin:0 6px 6px;border-radius:var(--radius);overflow:hidden;border:1px solid transparent;max-height:0;opacity:0;transition:max-height var(--t),opacity var(--t);}
@@ -766,6 +770,12 @@ body{background:var(--bg);color:var(--text-1);height:100vh;overflow:hidden;trans
     </div>
   </aside>
 
+  <!-- NAV FLYOUT -->
+  <div id="navFlyout" onmouseenter="cancelHideNavFlyout()" onmouseleave="hideNavFlyout()">
+    <div id="navFlyoutTitle"></div>
+    <div id="navFlyoutBody"></div>
+  </div>
+
   <!-- WORKSPACE POPUP -->
   <div class="about-popup" id="workspacePopup">
     <div class="about-popup-hdr">
@@ -1033,24 +1043,24 @@ const WIDGETS = {
   'sb-nav':{name:'Ana Navigasyon',desc:'Tam sidebar menüsü',icon:'≡',zones:['sbTop'],
     render:()=>`<div style="display:flex;flex-direction:column;gap:2px;">
       <div class="nav-section">
-        <button class="nav-item ${activeTab==='home'?'active':''}" data-tip="Ana Sayfa" onclick="goHome()"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7L8 2l6 5M3.5 6.5V14h9V6.5" stroke-linejoin="round"/></svg></span><span class="nav-label">Ana Sayfa</span></button>
+        <button class="nav-item ${activeTab==='home'?'active':''}" data-tip="Ana Sayfa" onmouseenter="showNavFlyout(this,'Ana Sayfa')" onmouseleave="hideNavFlyout()" onclick="goHome()"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7L8 2l6 5M3.5 6.5V14h9V6.5" stroke-linejoin="round"/></svg></span><span class="nav-label">Ana Sayfa</span></button>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-section"><div class="nav-sec-label">Ana Menü</div>
-        <button class="nav-item" data-tip="Dashboard" onclick="openNavItem('Dashboard','grid')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span><span class="nav-label">Dashboard</span><span class="nav-badge">4</span></button>
-        <button class="nav-item" data-tip="Formlar" onclick="openNavItem('Formlar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg></span><span class="nav-label">Formlar</span></button>
-        <button class="nav-item" data-tip="Süreçler" onclick="openNavItem('Süreçler','settings')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v3.5l2 2"/></svg></span><span class="nav-label">Süreçler</span><span class="nav-badge">12</span></button>
-        <button class="nav-item" data-tip="Raporlar" onclick="openNavItem('Raporlar','chart')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></span><span class="nav-label">Raporlar</span></button>
+        <button class="nav-item" data-tip="Dashboard" onmouseenter="showNavFlyout(this,'Dashboard')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Dashboard','grid')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg></span><span class="nav-label">Dashboard</span><span class="nav-badge">4</span></button>
+        <button class="nav-item" data-tip="Formlar" onmouseenter="showNavFlyout(this,'Formlar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Formlar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg></span><span class="nav-label">Formlar</span></button>
+        <button class="nav-item" data-tip="Süreçler" onmouseenter="showNavFlyout(this,'Süreçler')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Süreçler','settings')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v3.5l2 2"/></svg></span><span class="nav-label">Süreçler</span><span class="nav-badge">12</span></button>
+        <button class="nav-item" data-tip="Raporlar" onmouseenter="showNavFlyout(this,'Raporlar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Raporlar','chart')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg></span><span class="nav-label">Raporlar</span></button>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-section"><div class="nav-sec-label">Veriler</div>
-        <button class="nav-item" data-tip="Tablolar" onclick="openNavItem('Tablolar','list')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="4.5" rx="5.5" ry="2"/><path d="M2.5 4.5v3c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2v-3M2.5 7.5v3c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2v-3"/></svg></span><span class="nav-label">Tablolar</span></button>
-        <button class="nav-item" data-tip="Entegrasyonlar" onclick="openNavItem('Entegrasyonlar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 2.5l-11 11M10 2.5h3.5v3.5M6 13.5H2.5V10"/></svg></span><span class="nav-label">Entegrasyonlar</span></button>
+        <button class="nav-item" data-tip="Tablolar" onmouseenter="showNavFlyout(this,'Tablolar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Tablolar','list')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="4.5" rx="5.5" ry="2"/><path d="M2.5 4.5v3c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2v-3M2.5 7.5v3c0 1.1 2.46 2 5.5 2s5.5-.9 5.5-2v-3"/></svg></span><span class="nav-label">Tablolar</span></button>
+        <button class="nav-item" data-tip="Entegrasyonlar" onmouseenter="showNavFlyout(this,'Entegrasyonlar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Entegrasyonlar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 2.5l-11 11M10 2.5h3.5v3.5M6 13.5H2.5V10"/></svg></span><span class="nav-label">Entegrasyonlar</span></button>
       </div>
       <div class="nav-divider"></div>
       <div class="nav-section"><div class="nav-sec-label">Yönetim</div>
-        <button class="nav-item" data-tip="Kullanıcılar" onclick="openNavItem('Kullanıcılar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="5" r="2.5"/><circle cx="10.5" cy="5" r="2.5"/><path d="M1 13c0-2.21 2.01-4 4.5-4M9 13c0-2.21 2.01-4 4.5-4" opacity=".5"/></svg></span><span class="nav-label">Kullanıcılar</span></button>
-        <button class="nav-item" data-tip="Ayarlar" onclick="openNavItem('Ayarlar','settings')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="nav-label">Ayarlar</span></button>
+        <button class="nav-item" data-tip="Kullanıcılar" onmouseenter="showNavFlyout(this,'Kullanıcılar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Kullanıcılar','page')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="5" r="2.5"/><circle cx="10.5" cy="5" r="2.5"/><path d="M1 13c0-2.21 2.01-4 4.5-4M9 13c0-2.21 2.01-4 4.5-4" opacity=".5"/></svg></span><span class="nav-label">Kullanıcılar</span></button>
+        <button class="nav-item" data-tip="Ayarlar" onmouseenter="showNavFlyout(this,'Ayarlar')" onmouseleave="hideNavFlyout()" onclick="openNavItem('Ayarlar','settings')"><span class="nav-icon"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg></span><span class="nav-label">Ayarlar</span></button>
       </div>
     </div>`},
   'sb-search':{name:'Arama',desc:'Sidebar içi arama',icon:'⌕',zones:['sbTop','sbBottom'],
@@ -1427,6 +1437,32 @@ function toggleBcDd(which,e){e&&e.stopPropagation();closeBcMenu(which==='ws'?'db
 function closeBcMenu(which){const m=document.getElementById(which+'Menu'),c=document.getElementById(which+'Chev');if(m)m.classList.remove('open');if(c)c.classList.remove('open');}
 function selectWs(id){selWs=id;const w=WORKSPACES.find(x=>x.id===id);const l=document.getElementById('wsLabel');if(l)l.textContent=w.name;const dbs=DB_BY_WS[id]||[];if(dbs.length){selDb=dbs[0].id;const dl=document.getElementById('dbLabel');if(dl)dl.textContent=dbs[0].name;}closeBcMenu('ws');renderBcMenus();}
 function selectDb(id){selDb=id;const dbs=DB_BY_WS[selWs]||[];const d=dbs.find(x=>x.id===id);if(d){const dl=document.getElementById('dbLabel');if(dl)dl.textContent=d.name;}closeBcMenu('db');}
+
+// ══ NAV FLYOUT ══
+const NAV_SUBITEMS={
+  'Dashboard':['Ana Dashboard','Satış Dashboard','Operasyon'],
+  'Raporlar':['Günlük Rapor','Haftalık Rapor','Aylık Rapor','Yıllık Rapor'],
+  'Tablolar':['Müşteriler','Ürünler','Siparişler'],
+  'Kullanıcılar':['Kullanıcı Listesi','Roller','İzinler'],
+  'Ayarlar':['Genel','Bildirimler','Entegrasyonlar'],
+};
+let _navFlyTimer;
+function showNavFlyout(el,label){
+  const subs=NAV_SUBITEMS[label]||[];
+  const sb=document.getElementById('sidebar');
+  if(!sb.classList.contains('compact')&&!subs.length)return;
+  clearTimeout(_navFlyTimer);
+  const fly=document.getElementById('navFlyout');
+  const rect=el.getBoundingClientRect();
+  document.getElementById('navFlyoutTitle').textContent=label;
+  document.getElementById('navFlyoutBody').innerHTML=subs.map(s=>`<button class="nav-flyout-item" onclick="openNavItem('${s}','page');hideNavFlyoutNow()">${s}</button>`).join('');
+  fly.style.display='block';
+  fly.style.left=(rect.right+6)+'px';
+  fly.style.top=rect.top+'px';
+}
+function hideNavFlyout(){_navFlyTimer=setTimeout(()=>{document.getElementById('navFlyout').style.display='none';},150);}
+function cancelHideNavFlyout(){clearTimeout(_navFlyTimer);}
+function hideNavFlyoutNow(){document.getElementById('navFlyout').style.display='none';}
 
 // ══ LOGO CARD ══
 const LC_APPS=[{id:'sayfam',color:'#0D9B8C',bg:'#0D9B8C22',icon:'⊞',name:'Sayfam',desc:'Kişisel sayfa ve görevlerim'},{id:'arge',color:'#2B6FE8',bg:'#2B6FE822',icon:'◈',name:'ARGE',desc:'Araştırma & geliştirme modülü'},{id:'ims',color:'#7C6FE8',bg:'#7C6FE822',icon:'⚙',name:'IMS Yardım',desc:'Yönetim sistemi & destek'},{id:'egitim',color:'#E8752B',bg:'#E8752B22',icon:'✦',name:'Eğitimler',desc:'Öğrenme platformu & kurslar'}];
